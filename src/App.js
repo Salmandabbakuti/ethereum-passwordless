@@ -1,31 +1,11 @@
 import { useState, useEffect } from 'react';
 import Web3 from 'web3';
-import sigUtil from 'eth-sig-util';
+import { recoverTypedSignature } from 'eth-sig-util';
 import ethLogo from './ethLogo.svg'
 import './App.css';
 
 function App() {
   const [logMessage, setLogMessage] = useState('');
-
-  window.ethereum.on("accountsChanged", async () => {
-    console.log("account change detected");
-  });
-  window.ethereum.on("chainChanged", (chainId) => {
-    console.log('chain changed', chainId);
-    window.location.reload();
-  });
-
-  // // Subscribe to provider connection
-  window.ethereum.on("connect", (info) => {
-    console.log('connected to the network');
-    setLogMessage('Connected to the network');
-  });
-
-  // // Subscribe to provider disconnection
-  window.ethereum.on("disconnect", (error) => {
-    console.log(error);
-    setLogMessage('Disconnected from the network');
-  });
 
   useEffect(() => {
     const init = async () => {
@@ -51,12 +31,9 @@ function App() {
             from: accounts[0],
           }).then((res) => {
             console.log('Signature: ', res);
-            const recovered = sigUtil.recoverTypedSignature_v4({
-              data: JSON.parse(msgParams),
-              sig: res,
-            });
-            setLogMessage(`You are logged in as: ${accounts[0]}`);
+            const recovered = recoverTypedSignature({ data: JSON.parse(msgParams), sig: res });
             console.log('Recovered account from signature: ', recovered);
+            setLogMessage(`You are logged in as: ${accounts[0]}`);
             if (recovered === accounts[0]) {
               console.log(`Successfully recovered signer as '${accounts[0]}'`);
             } else {
