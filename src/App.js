@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import Web3 from 'web3';
-import { recoverTypedSignature } from 'eth-sig-util';
+import { recoverTypedSignature, SignTypedDataVersion } from '@metamask/eth-sig-util';
 import ethLogo from './ethLogo.svg'
 import './App.css';
 
 function App() {
   const [logMessage, setLogMessage] = useState('');
+  const [loggedInMsg, setLoggedInMsg] = useState('');
 
   useEffect(() => {
     const init = async () => {
@@ -31,11 +32,12 @@ function App() {
             from: accounts[0],
           }).then((res) => {
             console.log('Signature: ', res);
-            const recovered = recoverTypedSignature({ data: JSON.parse(msgParams), sig: res });
+            const recovered = recoverTypedSignature({ data: JSON.parse(msgParams), signature: res, version: SignTypedDataVersion.V4 });
             console.log('Recovered account from signature: ', recovered);
-            setLogMessage(`You are logged in as: ${accounts[0]}`);
             if (recovered === accounts[0]) {
+              setLoggedInMsg(`You are logged in as: ${accounts[0]}`);
               console.log(`Successfully recovered signer as '${accounts[0]}'`);
+              setLogMessage(`Successfully recovered signer as '${accounts[0]}'`);
             } else {
               console.log(`Failed to verify signer when comparing signature to '${accounts[0]}'`);
             }
@@ -54,6 +56,7 @@ function App() {
       <header className="App-header">
         <img src={ethLogo} className="App-logo" alt="logo" />
         <h1 className="App-title">Passwordless Signin with Ethereum</h1>
+        <h5>{loggedInMsg}</h5>
       </header>
       <p className="App-log">{logMessage}</p>
     </div >
