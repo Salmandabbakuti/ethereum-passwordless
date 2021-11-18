@@ -1,4 +1,3 @@
-import { ethers } from "ethers";
 import { recoverTypedSignature, SignTypedDataVersion } from '@metamask/eth-sig-util';
 
 const users = [];
@@ -19,14 +18,13 @@ const eip712Types = {
 
 export default function auth(req, res) {
   let authenticated = false;
-  let user = null;
   const { address, signature } = req.query;
   const decodedAddress = recoverTypedSignature({ data: eip712Types, signature, version: SignTypedDataVersion.V4 });
   console.log('Recovered account from signature: ', decodedAddress);
   if (decodedAddress.toLowerCase() === address.toLowerCase()) {
     console.log('Successfully recovered account from signature: ', decodedAddress);
     authenticated = true;
-    user = users.find(u => u.address = address);
+    const user = users.find(u => u.address = address);
     if (!user) {
       console.log('User not found, Signing up..');
       users.push({ address, registeredOn: new Date() });
